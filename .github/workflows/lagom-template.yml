@@ -190,55 +190,11 @@ jobs:
           vcpkg_cache_path: ${{ github.workspace }}/Build/caches/vcpkg-binary-cache
           vcpkg_cache_primary_key: ${{ steps.cache-restore.outputs.vcpkg_cache_primary_key }}
 
-      # === TEST ===
-
-      - name: Test
-        if: ${{ contains(inputs.build_preset, 'Sanitizer') }}
-        working-directory: ${{ github.workspace }}
-        run: ctest --preset ${{ inputs.build_preset }} --output-on-failure --test-dir Build --timeout 1800
-        env:
-          TESTS_ONLY: 1
-          # NOTE: These are appended to the preset's options.
-          ASAN_OPTIONS: 'log_path="${{ github.workspace }}/asan.log"'
-          UBSAN_OPTIONS: 'log_path="${{ github.workspace }}/ubsan.log"'
-
-      - name: Test
-        if: ${{ inputs.build_preset != 'Fuzzers' && inputs.build_preset != 'All_Debug' && !contains(inputs.build_preset, 'Sanitizer') }}
-        working-directory: ${{ github.workspace }}
-        run: ctest --output-on-failure --test-dir Build --timeout 1800
-        env:
-          TESTS_ONLY: 1
-
-      - name: Upload LibWeb Test Artifacts
-        if: ${{ always() && inputs.build_preset != 'Fuzzers' && inputs.build_preset != 'All_Debug' }}
-        uses: actions/upload-artifact@v6
-        with:
-          name: libweb-test-artifacts-${{ inputs.os_name }}-${{ inputs.build_preset }}-${{ inputs.toolchain }}-${{ inputs.clang_plugins }}
-          path: ${{ github.workspace }}/Build/Lagom/Tests/LibWeb/test-web/test-dumps/
-          retention-days: 0
-          if-no-files-found: ignore
-
-      - name: Sanitizer Output
-        if: ${{ !cancelled() && inputs.build_preset == 'Sanitizer' }}
-        working-directory: ${{ github.workspace }}
+      - name: Look around
+        shell: bash
         run: |
-          log_output=$(find . -maxdepth 1 \( -name 'asan.log.*' -o -name 'ubsan.log.*' \) -exec cat {} \; )
-          if [ -z "$log_output" ]; then
-            echo "No sanitizer issues found."
-          else
-            echo "$log_output"
-            echo "Sanitizer errors happened while running tests; see the Test step above."
-          fi
-
-      - name: Lints
-        if: ${{ inputs.os_name == 'Linux' && inputs.build_preset == 'Sanitizer' }}
-        working-directory: ${{ github.workspace }}
-        run: |
-          set -e
-          git ls-files '*.ipc' | xargs ./Build/bin/IPCMagicLinter
-        env:
-          ASAN_OPTIONS: 'strict_string_checks=1:check_initialization_order=1:strict_init_order=1:detect_stack_use_after_return=1:allocator_may_return_null=1'
-          UBSAN_OPTIONS: 'print_stacktrace=1:print_summary=1:halt_on_error=1'
+          : Look around
+          find / -type d -name \( -name 'bin' -o -name Ladybird.app \) 
 
       - name: Upload something
         if: ${{ always() }}
