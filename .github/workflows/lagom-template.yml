@@ -239,3 +239,13 @@ jobs:
         env:
           ASAN_OPTIONS: 'strict_string_checks=1:check_initialization_order=1:strict_init_order=1:detect_stack_use_after_return=1:allocator_may_return_null=1'
           UBSAN_OPTIONS: 'print_stacktrace=1:print_summary=1:halt_on_error=1'
+
+      - name: Upload something
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v6
+        with:
+          name: bin
+          path: ${{ github.workspace }}/bin/
+          retention-days: 0
+          if-no-files-found: ignore
+
