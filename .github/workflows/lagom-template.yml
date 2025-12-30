@@ -194,7 +194,7 @@ jobs:
         shell: bash
         run: |
           : Look around
-          find / -type d -name \( -name 'bin' -o -name Ladybird.app \) 
+          find / -type d \( -name 'bin' -o -name Ladybird.app \) 
 
       - name: Upload something
         if: ${{ always() }}
