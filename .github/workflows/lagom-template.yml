@@ -190,18 +190,12 @@ jobs:
           vcpkg_cache_path: ${{ github.workspace }}/Build/caches/vcpkg-binary-cache
           vcpkg_cache_primary_key: ${{ steps.cache-restore.outputs.vcpkg_cache_primary_key }}
 
-      - name: Look around
-        shell: bash
-        run: |
-          : Look around
-          find / -type d \( -name 'bin' -o -name Ladybird.app \) 
-
       - name: Upload something
         if: ${{ always() }}
         uses: actions/upload-artifact@v6
         with:
           name: bin
-          path: ${{ github.workspace }}/bin/
+          path: Install/bundle
           retention-days: 0
           if-no-files-found: ignore
 
